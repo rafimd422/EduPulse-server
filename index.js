@@ -24,21 +24,25 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
-    const database = client.db("userDatabase");
-    const userCollection = database.collection("menu");
+    const database = client.db("userData");
+    const userCollection = database.collection("user");
+
+app.get('/user', async(req,res)=>{
+    const user = req.body;
+    const result = await userCollection.find(user).toArray()
+    res.send(result)
+})
 
     app.post("/user", async (req, res) => {
       const user = req.body;
-      let query = {};
-      if (req.params.email) {
+      if (user.email) {
         query = { email: user.email };
-      }
-
-      const alreadyExistUser = userCollection.findOne(query);
+      }    
+      const alreadyExistUser = await userCollection.findOne(query);
       if (alreadyExistUser) {
         res.send({ message: "user already exist" });
       }
-      const result = userCollection.insertOne(user);
+      const result = await userCollection.insertOne(user);
       res.send(result);
     });
 
