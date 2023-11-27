@@ -26,6 +26,7 @@ async function run() {
     // await client.connect();
     const database = client.db("userData");
     const userCollection = database.collection("user");
+    const TeacherRequest = database.collection("TeacherRequest");
 
     app.get('/user', async(req,res)=>{
         const user = req.body;
@@ -58,6 +59,31 @@ async function run() {
       res.send(result)
     })
 
+
+    app.get('/teacherRequest', async (req, res) =>{
+      const user = req.body
+       let query = {}
+       if(req.query.email){
+         query = {email:req.query.email}
+       }
+      const result = await TeacherRequest.find(query).toArray()
+      console.log(result)
+      res.send(result)
+    })
+
+    app.post('/teacherRequest', async (req, res) =>{
+      const user = req.body;
+      const result = await TeacherRequest.insertOne(user)
+      console.log(result)
+      res.send(result)
+    })
+
+    
+
+
+    
+    
+    
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
