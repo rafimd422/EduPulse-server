@@ -67,7 +67,6 @@ async function run() {
          query = {email:req.query.email}
        }
       const result = await TeacherRequest.find(query).toArray()
-      console.log(result)
       res.send(result)
     })
 
@@ -78,11 +77,33 @@ async function run() {
       res.send(result)
     })
 
+    app.patch('/teacherRequest/:id', async(req, res)=>{
+      const id = req.params.id
+      const filter = {_id: new ObjectId(id)}
+      const findEmail = await TeacherRequest.findOne(filter)
+      const query = {email: findEmail.email}
     
+      const updateDoc = {
+        $set: {
+          status: 'approved'
+        },
+      };
+      const result = await TeacherRequest.updateOne(filter, updateDoc)
 
+      if(result?.modifiedCount > 0){
+         const updateUserDoc = {
+           $set: {
+             role: 'Teacher'
+           },
+         };
+         const userResult = await userCollection.updateOne(query, updateUserDoc)
+         res.json({
+          TeacherRequest: result,
+          userCollection: userResult
+        });
+       }
+    })
 
-    
-    
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
