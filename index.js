@@ -104,6 +104,24 @@ async function run() {
        }
     })
 
+
+    app.patch('/teacherRequest/reject/:id', async(req, res)=>{
+      const id = req.params.id
+      const filter = {_id: new ObjectId(id)}
+      const updateDoc = {
+        $set: {
+          status: 'rejected'
+        },
+      };
+      const result = await TeacherRequest.updateOne(filter, updateDoc)
+
+      res.send(result)
+    })
+
+
+
+
+    // 
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
