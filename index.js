@@ -127,7 +127,7 @@ async function run() {
 app.get("/classreq", async (req, res) => {
   let query = {};
   if (req.query.email) {
-    query = { email: req.query.email };
+    query = { teacherMail: req.query.email };
   }
   const result = await classReqCollection.find(query).toArray();
   res.send(result);
@@ -140,9 +140,38 @@ app.post("/classreq", async (req, res) => {
   res.send(result);
 });
 
+app.get('/classreq/:id', async(req,res)=>{
+  const user = req.body;
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result = await classReqCollection.findOne(query)
+  res.send(result)
+})
 
 
+app.patch('/classreq/:id', async(req,res)=>{
+  const body = req.body;
+  const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          courseTitle: body.courseTitle,
+          price: body.price,
+          image: body.image,
+          shortDesc: body.shortDesc,
+          courseOutline: body.courseOutline
+        },
+      };
+  const result = await classReqCollection.updateOne(filter, updateDoc)
+  res.send(result)
+})
 
+app.delete('/classreq/:id', async(req,res)=>{
+  const id = req.params.id;
+  const query = {_id: new ObjectId(id)}
+  const result = await classReqCollection.deleteOne(query)
+  res.send(result)
+})
 
 
 
