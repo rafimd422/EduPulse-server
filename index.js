@@ -141,7 +141,6 @@ app.post("/classreq", async (req, res) => {
 });
 
 app.get('/classreq/:id', async(req,res)=>{
-  const user = req.body;
   const id = req.params.id;
   const query = {_id: new ObjectId(id)}
   const result = await classReqCollection.findOne(query)
@@ -165,6 +164,32 @@ app.patch('/classreq/:id', async(req,res)=>{
   const result = await classReqCollection.updateOne(filter, updateDoc)
   res.send(result)
 })
+app.patch('/classreq/accept/:id', async(req,res)=>{
+  const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status:'approved'
+        },
+      };
+  const result = await classReqCollection.updateOne(filter, updateDoc)
+  res.send(result)
+})
+app.patch('/classreq/reject/:id', async(req,res)=>{
+  const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          status:'rejected'
+        },
+      };
+  const result = await classReqCollection.updateOne(filter, updateDoc)
+  res.send(result)
+})
+
+
+
+
 
 app.delete('/classreq/:id', async(req,res)=>{
   const id = req.params.id;
