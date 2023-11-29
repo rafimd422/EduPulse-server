@@ -31,7 +31,7 @@ async function run() {
 
 // jwt releted api
 app.post("/jwt", async (req, res) => {
-  const user = req.body;
+  const user = req.body; // current user email
   const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
     expiresIn: "8hr",
   });
@@ -39,10 +39,24 @@ app.post("/jwt", async (req, res) => {
   res.send({ token });
 });
 
+//middleware
+
+const verifyToken = (req, res, next) => {
+  const header = req.headers.authorization;
+  console.log('verify token', header)
+  if(!req.headers.authorization){
+    return res.status(401).send({message:'unauthorized'})
+  }
+  const token = header.split(' ')[1]
+  jwt.verify(token, process.env.ACCESS_TOKEN, function(err, decoded) {
+    if(err){
+      return res.status(401).send({message:'unAuthorized'})
+    }
+  });
+}
 
 
-
-    app.get("/user", async (req, res) => {
+    app.get("/user", verifyToken, async (req, res) => {
       const user = req.body;
 
       let query = {};
@@ -78,7 +92,7 @@ app.post("/jwt", async (req, res) => {
       res.send(result);
     });
 
-    app.get("/teacherRequest", async (req, res) => {
+    app.get("/teacherRequest", verifyToken,async (req, res) => {
       let query = {};
       if (req.query.email) {
         query = { email: req.query.email };
@@ -146,7 +160,7 @@ app.get("/classreq", async (req, res) => {
   res.send(result);
 });
 
-app.post("/classreq", async (req, res) => {
+app.post("/classreq",verifyToken, async (req, res) => {
   const user = req.body;
   const result = await classReqCollection.insertOne(user);
   console.log(result);
