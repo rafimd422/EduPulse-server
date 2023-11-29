@@ -7,6 +7,7 @@ const port = process.env.PORT || 5000;
 var jwt = require("jsonwebtoken");
 app.use(cors());
 app.use(express.json());
+const stripe = require("stripe")(process.env.STRIPE_INTENT_KEY);
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_KEY}@cluster0.sopxnju.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -165,7 +166,7 @@ app.post("/classreq",verifyToken, async (req, res) => {
   res.send(result);
 });
 
-app.get('/classreq/:id', async(req,res)=>{
+app.get('/classreq/:id',verifyToken, async(req,res)=>{
   const id = req.params.id;
   const query = {_id: new ObjectId(id)}
   const result = await classReqCollection.findOne(query)
@@ -212,10 +213,6 @@ app.patch('/classreq/reject/:id', async(req,res)=>{
   res.send(result)
 })
 
-
-
-
-
 app.delete('/classreq/:id', async(req,res)=>{
   const id = req.params.id;
   const query = {_id: new ObjectId(id)}
@@ -223,7 +220,19 @@ app.delete('/classreq/:id', async(req,res)=>{
   res.send(result)
 })
 
-
+// payment intent
+app.post('/create-payment-intent', async(req,res) => {
+  const { price } = req.body;
+  const amount = parseInt(price*100);
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: amount,
+    currency: 'usd',
+    payment_method_types:['card']
+  })
+  res.send({
+    clientSecret: paymentIntent.client_secret
+  })
+})
 
 
 
