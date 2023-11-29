@@ -4,7 +4,7 @@ const cors = require("cors");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
-
+var jwt = require("jsonwebtoken");
 app.use(cors());
 app.use(express.json());
 
@@ -27,6 +27,19 @@ async function run() {
     const userCollection = database.collection("user");
     const TeacherRequest = database.collection("TeacherRequest");
     const classReqCollection = database.collection("classReqCollection");
+
+
+// jwt releted api
+app.post("/jwt", async (req, res) => {
+  const user = req.body;
+  const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+    expiresIn: "8hr",
+  });
+  console.log(token)
+  res.send({ token });
+});
+
+
 
 
     app.get("/user", async (req, res) => {
