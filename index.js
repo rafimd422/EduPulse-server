@@ -33,9 +33,8 @@ async function run() {
 app.post("/jwt", async (req, res) => {
   const user = req.body; // current user email
   const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
-    expiresIn: "8hr",
+    expiresIn: "1hr",
   });
-  console.log(token)
   res.send({ token });
 });
 
@@ -43,22 +42,23 @@ app.post("/jwt", async (req, res) => {
 
 const verifyToken = (req, res, next) => {
   const header = req.headers.authorization;
-  console.log('verify token', header)
   if(!req.headers.authorization){
     return res.status(401).send({message:'unauthorized'})
   }
   const token = header.split(' ')[1]
-  jwt.verify(token, process.env.ACCESS_TOKEN, function(err, decoded) {
-    if(err){
+  console.log(token)
+  jwt.verify(token, process.env.ACCESS_TOKEN, (err, decoded) => {
+    if(err){ 
       return res.status(401).send({message:'unAuthorized'})
     }
+    
+    req.decoded = decoded;
+    next()
   });
 }
 
 
     app.get("/user", verifyToken, async (req, res) => {
-      const user = req.body;
-
       let query = {};
       if (req.query.email) {
         query = { email: req.query.email };
@@ -104,7 +104,6 @@ const verifyToken = (req, res, next) => {
     app.post("/teacherRequest", async (req, res) => {
       const user = req.body;
       const result = await TeacherRequest.insertOne(user);
-      console.log(result);
       res.send(result);
     });
 
@@ -163,7 +162,6 @@ app.get("/classreq", async (req, res) => {
 app.post("/classreq",verifyToken, async (req, res) => {
   const user = req.body;
   const result = await classReqCollection.insertOne(user);
-  console.log(result);
   res.send(result);
 });
 
