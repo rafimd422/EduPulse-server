@@ -28,6 +28,7 @@ async function run() {
     const userCollection = database.collection("user");
     const TeacherRequest = database.collection("TeacherRequest");
     const classReqCollection = database.collection("classReqCollection");
+    const enrolledCollection = database.collection("enrollmentDB");
 
 
 // jwt releted api
@@ -174,22 +175,27 @@ app.get('/classreq/:id',verifyToken, async(req,res)=>{
 })
 
 
-app.patch('/classreq/:id', async(req,res)=>{
+app.patch('/classreq/:id', async (req, res) => {
   const body = req.body;
   const id = req.params.id;
-      const filter = { _id: new ObjectId(id) };
-      const updateDoc = {
-        $set: {
-          courseTitle: body.courseTitle,
-          price: body.price,
-          image: body.image,
-          shortDesc: body.shortDesc,
-          courseOutline: body.courseOutline
-        },
-      };
-  const result = await classReqCollection.updateOne(filter, updateDoc)
-  res.send(result)
-})
+
+  const filter = { _id: new ObjectId(id) };
+  const updateDoc = {
+    $set: {
+      courseTitle: body.courseTitle,
+      price: body.price,
+      image: body.image,
+      shortDesc: body.shortDesc,
+      courseOutline: body.courseOutline,
+      enrollCount:body.enrollCount
+    }
+  };
+
+  const result = await classReqCollection.updateOne(filter, updateDoc);
+
+  res.send(result);
+});
+
 app.patch('/classreq/accept/:id', async(req,res)=>{
   const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -234,7 +240,14 @@ app.post('/create-payment-intent', async(req,res) => {
   })
 })
 
+// enrolled course colleciton
 
+app.post("/enrolled", async (req, res) => {
+  const data = req.body;
+  const result = await enrolledCollection.insertOne(data);
+  console.log(result)
+  res.send(result);
+});
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
