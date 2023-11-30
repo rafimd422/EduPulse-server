@@ -242,6 +242,15 @@ app.post('/create-payment-intent', async(req,res) => {
 
 // enrolled course colleciton
 
+app.get("/enrolled",async (req, res) => {
+  let query = {};
+  if (req.query.email) {
+    query = { email: req.query.email };
+  }
+  const result = await enrolledCollection.find(query).toArray();
+  res.send(result);
+});
+
 app.post("/enrolled", async (req, res) => {
   const data = req.body;
   const result = await enrolledCollection.insertOne(data);
